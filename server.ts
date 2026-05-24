@@ -473,7 +473,7 @@ Respond ONLY with valid JSON structure, matching this schema:
       appType: 'spa'
     });
     app.use(vite.middlewares);
-  } else {
+  } else if (!process.env.VERCEL) {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
@@ -481,9 +481,22 @@ Respond ONLY with valid JSON structure, matching this schema:
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Célèbre Server] Listening elegantly on http://0.0.0.0:${PORT}`);
-  });
+  return app;
 }
 
-startServer();
+// Keep a synchronous app wrapper for Vercel
+const vercelApp = express();
+vercelApp.use(express.json());
+
+startServer().then(app => {
+  if (!process.env.VERCEL) {
+    app.listen(3000, '0.0.0.0', () => {
+      console.log(`[Célèbre Server] Listening elegantly on http://0.0.0.0:3000`);
+    });
+  }
+});
+
+export default async function handler(req: any, res: any) {
+  const app = await startServer();
+  return app(req, res);
+}
