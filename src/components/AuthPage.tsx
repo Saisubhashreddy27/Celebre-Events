@@ -242,7 +242,7 @@ export default function AuthPage({ onLoginSuccess, onNavigate }: AuthPageProps) 
           id="google_oauth_btn"
         >
           <Chrome className="w-4.5 h-4.5 text-red-500 fill-red-500/20" />
-          <span>Google Sandbox Single-Sign-On</span>
+          <span>Continue with Google</span>
         </button>
 
         {/* TOGGLE FORM BUTTON */}
@@ -253,7 +253,7 @@ export default function AuthPage({ onLoginSuccess, onNavigate }: AuthPageProps) 
               setError('');
               setIsSignUp(!isSignUp);
             }}
-            className="font-sans text-xs text-gold-dark hover:underline focus:outline-hidden"
+            className="font-sans text-sm font-semibold text-gold-dark hover:underline focus:outline-hidden"
             id="toggle_auth_btn"
           >
             {isSignUp ? 'Already have an account? Log In' : 'New to Célèbre? Sign up for free'}
