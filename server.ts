@@ -5,17 +5,15 @@
 
 import express from 'express';
 import path from 'path';
-import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+const PORT = 3000;
 
-  app.use(express.json());
+app.use(express.json());
 
   // In-memory data persistence representing our PostgreSQL tables:
   // Users, Recipients, Events, Payments, Contact Messages, etc.
@@ -467,36 +465,29 @@ Respond ONLY with valid JSON structure, matching this schema:
 
   // --- VITE MIDDLEWARE CONFIGURATION ---
 
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa'
-    });
-    app.use(vite.middlewares);
-  } else if (!process.env.VERCEL) {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+  async function setupVite() {
+    if (process.env.NODE_ENV !== 'production') {
+      const { createServer: createViteServer } = await import('vite');
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: 'spa'
+      });
+      app.use(vite.middlewares);
+    } else if (!process.env.VERCEL) {
+      const distPath = path.join(process.cwd(), 'dist');
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    }
   }
 
-  return app;
-}
-
-// Keep a synchronous app wrapper for Vercel
-const vercelApp = express();
-vercelApp.use(express.json());
-
-startServer().then(app => {
   if (!process.env.VERCEL) {
-    app.listen(3000, '0.0.0.0', () => {
-      console.log(`[Célèbre Server] Listening elegantly on http://0.0.0.0:3000`);
+    setupVite().then(() => {
+      app.listen(PORT, '0.0.0.0', () => {
+        console.log(`[Célèbre Server] Listening elegantly on http://0.0.0.0:${PORT}`);
+      });
     });
   }
-});
 
-export default async function handler(req: any, res: any) {
-  const app = await startServer();
-  return app(req, res);
-}
+export default app;
