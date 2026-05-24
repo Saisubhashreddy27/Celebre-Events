@@ -5,7 +5,6 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: process.env.NODE_ENV === 'production' ? '/Celebre-Events/' : '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
