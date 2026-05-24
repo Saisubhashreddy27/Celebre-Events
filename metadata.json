@@ -1,0 +1,6 @@
+{
+  "name": "Célèbre",
+  "description": "A luxury long-distance celebration platform for planning, scheduling, and delivering unforgettable surprise experiences.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
