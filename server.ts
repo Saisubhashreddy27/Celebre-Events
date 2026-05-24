@@ -154,7 +154,7 @@ app.use(express.json());
     }
     const exists = userDatabase.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (exists) {
-      return res.json({ success: true, user: exists, message: 'Welcome back!' });
+      return res.status(400).json({ error: 'An account with this email already exists. Please log in.' });
     }
     const newUser = {
       id: 'usr_' + Math.random().toString(36).substr(2, 9),
@@ -173,17 +173,10 @@ app.use(express.json());
     if (!email) {
       return res.status(400).json({ error: 'Email address is required.' });
     }
-    // Simple look-up or auto-create to give a friendly sandbox experience
+    // Strict lookup: if user does not exist, tell them to register
     let user = userDatabase.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (!user) {
-      user = {
-        id: 'usr_' + Math.random().toString(36).substr(2, 9),
-        name: email.split('@')[0].split(/[._-]/).map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' '),
-        email: email.toLowerCase(),
-        country: 'India',
-        timezone: 'America/New_York'
-      };
-      userDatabase.push(user);
+      return res.status(404).json({ error: 'No account found with this email. Please create an account.' });
     }
     res.json({ success: true, user });
   });
