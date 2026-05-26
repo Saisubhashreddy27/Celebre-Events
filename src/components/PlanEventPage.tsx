@@ -202,7 +202,7 @@ export default function PlanEventPage({
       }
     }
     if (currentStep === 2) {
-      if (eventType === 'Custom' && !customEventName) {
+      if (eventType === 'CustomSurprise' && !customEventName) {
         setErrorMessage('Please provide an elegant name for your Custom Celebration.');
         return;
       }
@@ -246,7 +246,7 @@ export default function PlanEventPage({
         relationship: recipientRelationship
       },
       eventType,
-      customEventName: eventType === 'Custom' ? customEventName : undefined,
+      customEventName: eventType === 'CustomSurprise' ? customEventName : undefined,
       date,
       time,
       reminderDays,
@@ -493,7 +493,7 @@ export default function PlanEventPage({
               ))}
             </div>
 
-            {eventType === 'Custom' && (
+            {eventType === 'CustomSurprise' && (
               <div className="space-y-1 pt-4 border-t border-gold/15 animate-fade-in" id="custom_event_name_wrapper">
                 <label className="font-sans text-[11px] font-semibold uppercase tracking-wider text-charcoal/85">Specify Elegant Event Name</label>
                 <input

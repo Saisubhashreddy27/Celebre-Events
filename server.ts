@@ -169,29 +169,73 @@ app.get('/api/events/:id', async (req, res) => {
 
 app.post('/api/events', async (req, res) => {
   const eventInput = req.body;
+  
+  // Sanitize input to ONLY include fields that exist in our Supabase schema
   const newEvent = {
-    ...eventInput,
     id: 'evt_' + Math.random().toString(36).substr(2, 9),
+    plannerId: eventInput.plannerId,
+    plannerName: eventInput.plannerName,
+    plannerEmail: eventInput.plannerEmail,
+    recipient: eventInput.recipient,
+    eventType: eventInput.customEventName && eventInput.eventType === 'CustomSurprise' 
+      ? `Custom: ${eventInput.customEventName}` 
+      : eventInput.eventType,
+    customHeaderMessage: eventInput.customHeaderMessage,
+    date: eventInput.date,
+    time: eventInput.time,
+    reminderDays: eventInput.reminderDays,
+    reminderMethod: eventInput.reminderMethod,
+    packageType: eventInput.packageType,
     status: 'Draft',
     createdAt: new Date().toISOString(),
+    backgroundMusic: eventInput.backgroundMusic,
+    collage: eventInput.collage,
+    videoUrl: eventInput.videoUrl,
+    giftVoucherCode: eventInput.giftVoucherCode,
     messages: eventInput.messages || []
   };
 
   try {
     const { data, error } = await supabase.from('events').insert(newEvent).select().single();
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase insert error details:', error);
+      throw error;
+    }
     res.json(data);
   } catch (error: any) {
     console.error('Create event error:', error);
-    res.status(500).json({ error: 'Failed to create event' });
+    res.status(500).json({ error: error.message || 'Failed to create event' });
   }
 });
 
 app.put('/api/events/:id', async (req, res) => {
+  const eventInput = req.body;
+  
+  // Sanitize input to ONLY include fields that exist in our Supabase schema
+  const updatePayload: any = {};
+  const validKeys = [
+    'plannerId', 'plannerName', 'plannerEmail', 'recipient', 
+    'eventType', 'customHeaderMessage', 'date', 'time', 
+    'reminderDays', 'reminderMethod', 'packageType', 'status', 
+    'backgroundMusic', 'collage', 'videoUrl', 'giftVoucherCode', 
+    'messages', 'paymentId'
+  ];
+  
+  for (const key of validKeys) {
+    if (eventInput[key] !== undefined) {
+      updatePayload[key] = eventInput[key];
+    }
+  }
+
+  // Handle custom event name
+  if (eventInput.customEventName && eventInput.eventType === 'CustomSurprise') {
+    updatePayload.eventType = `Custom: ${eventInput.customEventName}`;
+  }
+
   try {
     const { data, error } = await supabase
       .from('events')
-      .update(req.body)
+      .update(updatePayload)
       .eq('id', req.params.id)
       .select()
       .single();
