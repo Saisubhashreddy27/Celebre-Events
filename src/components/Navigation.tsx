@@ -43,10 +43,14 @@ export default function Navigation({
   });
 
   const navLinks = user
-    ? [
-        { label: t.nav_bookings, id: 'dashboard' },
-        { label: t.nav_new_booking, id: 'plan-event' }
-      ]
+    ? user.role === 'admin'
+      ? [
+          { label: 'Admin Dashboard', id: 'admin-dashboard' }
+        ]
+      : [
+          { label: t.nav_bookings, id: 'dashboard' },
+          { label: t.nav_new_booking, id: 'plan-event' }
+        ]
     : [
         { label: t.nav_home, id: 'home' },
         { label: t.nav_packages, id: 'packages' },
@@ -65,7 +69,7 @@ export default function Navigation({
         
         {/* LOGO */}
         <button
-          onClick={() => onNavigate(user ? 'dashboard' : 'home')}
+          onClick={() => onNavigate(user ? (user.role === 'admin' ? 'admin-dashboard' : 'dashboard') : 'home')}
           className="flex items-center space-x-2.5 text-left group"
           id="nav_logo_btn"
         >

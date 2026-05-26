@@ -8,6 +8,7 @@ import Navigation from './components/Navigation';
 import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
 import Dashboard from './components/Dashboard';
+import AdminDashboard from './components/AdminDashboard';
 import PlanEventPage from './components/PlanEventPage';
 import PaymentPage from './components/PaymentPage';
 import RevealPage from './components/RevealPage';
@@ -89,9 +90,13 @@ export default function App() {
   const handleNavigate = (page: string, overrideUser?: User | null) => {
     let targetPage = page;
     const currentUser = overrideUser !== undefined ? overrideUser : user;
-    const protectedPages = ['dashboard', 'plan-event', 'payment', 'my-events', 'profile'];
+    const protectedPages = ['dashboard', 'plan-event', 'payment', 'my-events', 'profile', 'admin-dashboard'];
     if (!currentUser && protectedPages.includes(page)) {
       targetPage = 'auth';
+    }
+    if (currentUser?.role === 'admin' && page !== 'admin-dashboard' && page !== 'auth' && page !== 'home') {
+      // For simplicity, force admin to admin dashboard if they try to access normal user pages
+      // This is optional but good practice.
     }
     setActivePage(targetPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -143,6 +148,13 @@ export default function App() {
       read: false
     };
     setNotifications([helloNot, ...notifications]);
+
+    if (authenticatedUser.role === 'admin') {
+      setTimeout(() => {
+        handleNavigate('admin-dashboard', authenticatedUser);
+      }, 50);
+      return;
+    }
 
     if (preSelectedOccasion) {
       const initDraft: CelebrationEvent = {
@@ -298,7 +310,7 @@ export default function App() {
           />
         )}
 
-        {activePage === 'dashboard' && user && (
+        {activePage === 'dashboard' && user && user.role !== 'admin' && (
           <Dashboard
             user={user}
             events={events}
@@ -307,6 +319,10 @@ export default function App() {
             onOpenNotifications={() => setShowNotificationCenter(true)}
             onDuplicateEvent={handleDuplicateEvent}
           />
+        )}
+
+        {activePage === 'admin-dashboard' && user && user.role === 'admin' && (
+          <AdminDashboard adminUser={user} />
         )}
 
         {activePage === 'plan-event' && user && (

@@ -79,9 +79,24 @@ app.post('/api/auth/register', async (req, res) => {
 });
 
 app.post('/api/auth/login', async (req, res) => {
-  const { email } = req.body;
+  const { email, password } = req.body;
   if (!email) {
     return res.status(400).json({ error: 'Email address is required.' });
+  }
+
+  // Admin bypass
+  if (email === 'admin' && password === 'admin@smiley') {
+    return res.json({
+      success: true,
+      user: {
+        id: 'admin_1',
+        name: 'Administrator',
+        email: 'admin@celebre.com',
+        country: 'Global',
+        timezone: 'UTC',
+        role: 'admin'
+      }
+    });
   }
 
   try {
@@ -486,6 +501,43 @@ Respond ONLY with valid JSON structure, matching this schema:
         `Our bridge of love remains unbroken.`
       ]
     });
+  }
+});
+
+// 6. Admin Endpoints
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('users').select('*');
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+app.get('/api/admin/events', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('events').select('*');
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch all events' });
+  }
+});
+
+app.patch('/api/admin/events/:id/status', async (req, res) => {
+  const { status } = req.body;
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .update({ status })
+      .eq('id', req.params.id)
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ success: true, event: data });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update event status' });
   }
 });
 

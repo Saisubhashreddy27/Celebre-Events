@@ -10,6 +10,7 @@ export interface User {
   phone?: string;
   timezone: string;
   country: string;
+  role?: 'admin' | 'user';
 }
 
 export type RelationshipType = 'Partner' | 'Friend' | 'Parent' | 'Sibling' | 'Colleague' | 'Other';
