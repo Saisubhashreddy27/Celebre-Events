@@ -154,7 +154,7 @@ export default function AuthPage({ onLoginSuccess, onNavigate }: AuthPageProps) 
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-luxury-gray/70" />
               <input
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="saisubhashvemireddy@gmail.com"
